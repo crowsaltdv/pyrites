@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Club Penguin</title>
+<style>html,body{margin:0;height:100%;background:#000}iframe{display:block;width:100%;height:100%;border:0}</style>
+</head>
+<body>
+<script>
+  // This game is hosted on another website. Framed inside pyrite it is embedded;
+  // opened on its own tab it goes straight there.
+  var url = "https://play.cplegacy.com/";
+  if (window.top === window) {
+    location.replace(url);
+  } else {
+    var f = document.createElement("iframe");
+    f.src = url;
+    f.setAttribute("allow", "autoplay; fullscreen; gamepad; clipboard-write; accelerometer; gyroscope; microphone; camera");
+    f.setAttribute("allowfullscreen", "");
+    document.body.appendChild(f);
+  }
+</script>
+<noscript><a href="https://play.cplegacy.com/">Open Club Penguin</a></noscript>
+</body>
+</html>

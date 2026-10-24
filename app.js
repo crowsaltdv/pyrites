@@ -31,6 +31,7 @@
   const gilt = [...document.querySelectorAll(".gilt")];
 
   const root = document.documentElement;
+  const gated = () => root.classList.contains("gated"); // cover page still up
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
@@ -70,10 +71,20 @@
     grid.replaceChildren();
     next = 0;
     empty.hidden = shown.length > 0;
-    count.textContent = terms.length
-      ? fmt(shown.length) + " of " + fmt(alpha.length)
-      : fmt(alpha.length) + " games";
+    count.textContent = countText();
     fill();
+  }
+
+  const countText = () => (norm(input.value)
+    ? fmt(shown.length) + " of " + fmt(alpha.length)
+    : fmt(alpha.length) + " games");
+
+  // a short message in the count line, then back to the count
+  let flashTimer = 0;
+  function flash(msg) {
+    clearTimeout(flashTimer);
+    count.textContent = msg;
+    flashTimer = setTimeout(() => { count.textContent = countText(); }, 3500);
   }
 
   /* ---------- cards + endless scroll ---------- */
@@ -162,7 +173,7 @@
 
   // "/" jumps to the search box
   addEventListener("keydown", (e) => {
-    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || current) return;
+    if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || current || gated()) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) return;
     e.preventDefault();
     input.focus();
@@ -221,7 +232,6 @@
     if (!lastFocus) lastFocus = document.activeElement;
 
     pTitle.textContent = game.name;
-    document.title = game.name + " · pyrite";
     pNewTab.href = gameUrl(game);
     pIcon.hidden = true;
     pIcon.onload = () => { pIcon.hidden = false; };
@@ -257,7 +267,6 @@
     player.classList.remove("theater", "is-full");
     root.classList.remove("playing");
     home.forEach((el) => { el.inert = false; });
-    document.title = "pyrite";
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
     lastFocus = null;
     kick(); // restart the cursor-light loop
@@ -265,6 +274,7 @@
 
   // "#/html/0-fa" -> that game
   function route() {
+    if (gated()) return; // nothing opens behind the cover page
     const m = location.hash.match(/^#\/(.+)$/);
     let game = null;
     if (m) {
@@ -401,7 +411,47 @@
     raf = requestAnimationFrame(frame);
   }
 
+  /* ---------- cover page ---------- */
+
+  // Every visit starts on the cover page (see index.html). Clicking anywhere on it opens pyrite.
+  const gate = $("gate");
+  if (gate && !gated()) gate.remove(); // embedded: no cover page
+  if (gate && gated()) {
+    gate.addEventListener("click", () => {
+      root.classList.remove("gated");
+      gate.remove();
+      fill();
+      route(); // a shared link like /#/html/0-fa opens now, not behind the cover
+    }, { once: true });
+  }
+
+  /* ---------- shield: open pyrite inside an about:blank tab ---------- */
+
+  const shield = $("shield");
+  function cloak() {
+    const w = window.open("about:blank", "_blank");
+    if (!w) { flash("allow pop-ups to open in about:blank"); return; }
+    const d = w.document;
+    d.title = document.title;
+    const icon = document.querySelector('link[rel~="icon"][sizes="32x32"]') || document.querySelector('link[rel~="icon"]');
+    if (icon) {
+      const l = d.createElement("link");
+      l.rel = "icon";
+      l.href = icon.href; // resolved to an absolute address, so it works from about:blank
+      d.head.appendChild(l);
+    }
+    d.documentElement.style.background = "#050505";
+    d.body.style.cssText = "margin:0;height:100vh;overflow:hidden;background:#050505";
+    const f = d.createElement("iframe");
+    f.src = location.href.split("#")[0]; // the cover page is skipped when pyrite is embedded
+    f.style.cssText = "display:block;width:100%;height:100%;border:0";
+    f.setAttribute("allow", "autoplay; fullscreen; gamepad; clipboard-write; accelerometer; gyroscope; microphone; camera");
+    f.setAttribute("allowfullscreen", "");
+    d.body.appendChild(f);
+  }
+  shield.addEventListener("click", cloak);
+
   kick();
   apply();
-  route(); // a shared link like /#/html/0-fa opens straight into the game
+  route(); // a shared link like /#/html/0-fa opens straight into the game (after the cover page)
 })();

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toca-Boca-World</title>
+<style>html,body{margin:0;height:100%;background:#000}iframe{display:block;width:100%;height:100%;border:0}</style>
+</head>
+<body>
+<script>
+  // This game is hosted on another website. Framed inside pyrite it is embedded;
+  // opened on its own tab it goes straight there.
+  var url = "https://ud-gles3games.shared-osj.k8s.n2i.io/?deeplinksURI=null%3A%2F%2F&deeplinksApp=com.tocaboca.tocalifeworld&quotaBytes=89000000&naturalOrientation=portrait&invertNaturalOrientation&forcedNaturalOrientation&jitterBufferMin=0&deeplinksService=true&backOnDisconnected=true&disconnectedMessage=null&api=%7B%22back%22%3Afalse%7D&title=Toca+Boca+World";
+  if (window.top === window) {
+    location.replace(url);
+  } else {
+    var f = document.createElement("iframe");
+    f.src = url;
+    f.setAttribute("allow", "autoplay; fullscreen; gamepad; clipboard-write; accelerometer; gyroscope; microphone; camera");
+    f.setAttribute("allowfullscreen", "");
+    document.body.appendChild(f);
+  }
+</script>
+<noscript><a href="https://ud-gles3games.shared-osj.k8s.n2i.io/?deeplinksURI=null%3A%2F%2F&deeplinksApp=com.tocaboca.tocalifeworld&quotaBytes=89000000&naturalOrientation=portrait&invertNaturalOrientation&forcedNaturalOrientation&jitterBufferMin=0&deeplinksService=true&backOnDisconnected=true&disconnectedMessage=null&api=%7B%22back%22%3Afalse%7D&title=Toca+Boca+World">Open Toca-Boca-World</a></noscript>
+</body>
+</html>
